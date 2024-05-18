@@ -91,7 +91,6 @@ DATABASES = {
         env('POSTGRES_URL'),
         conn_max_age=600,
         conn_health_checks=True,
-        engine='django_tenants.postgresql_backend'
     )
 }
 
