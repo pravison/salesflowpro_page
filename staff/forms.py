@@ -11,14 +11,14 @@ from tempus_dominus.widgets import DateTimePicker
 # 		super().__init__( *args, **kwargs)
 
 class AddPipelineForm(ModelForm):
-	customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.TextInput(attrs={'class': 'searchable-customer-list form-control'}))
+	#customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.TextInput(attrs={'class': 'searchable-customer-list form-control'}))
 	class Meta:
 		model = Pipeline
 		fields = ('task', 'important', 'customer', 'what_to_expect', 'notes', 'pipeline_date', 'pipeline_time', 'done')
 		widgets = {
 			"task": forms.TextInput(attrs={'class': "form-control", 'placeholder': 'whats your task', 'id': 'task'}),
 			"important" :forms.CheckboxInput(attrs={ 'placeholder': 'important', 'id': 'important'}),
-			#"customer": forms.Select(attrs={'class': "company-customer form-control"}),
+			"customer": forms.Select(attrs={'class': "company-customer form-control"}),
 			"what_to_expect": forms.Textarea(attrs={'class': "form-control", 'placeholder': 'what are your expectations', 'id': 'what_to_expect'}),
 			"notes": forms.Textarea(attrs={'class': "form-control", 'placeholder': 'add some notes', 'id': 'notes'}),
 			"pipeline_date": forms.DateInput(attrs={'class': "form-control", 'type':'date', 'placeholder': 'date to be done', 'id': 'pipeline_date'}),
