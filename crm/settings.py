@@ -84,23 +84,23 @@ WSGI_APPLICATION = 'crm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# import dj_database_url 
-
-# DATABASES = {
-#     'default': dj_database_url.parse(
-#         env('psql'),
-#         conn_max_age=600,
-#         conn_health_checks=True,
-#         engine='django_tenants.postgresql_backend'
-#     )
-# }
+import dj_database_url 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(
+        env('POSTGRES_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+        engine='django_tenants.postgresql_backend'
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
