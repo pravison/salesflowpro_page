@@ -1,0 +1,105 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %}Interactions {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+<div class="pagetitle">
+    <h1>Interactions</h1>
+    <nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'pipeline' %}">Pipeline</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'add_interaction' %}"><i class="bi bi-plus-circle"></i>Add Interaction</a></li>
+    </ol>
+    </nav>
+</div><!-- End Page Title -->
+{% for company in companys %}
+<section class="section dashboard">
+    <div class="row">
+
+    <!-- Left side columns -->
+    <div class="col-lg-12">
+        <div class="row">
+
+        <!-- Recent Sales -->
+        <div class="col-12">
+            <div class="card recent-sales overflow-auto">
+                
+            <div class="filter">
+                <a class="icon" href="{% url 'leads' %}" title="leads"><i class="bi bi-people"></i></a>
+                <a class="icon" href="{% url 'customers' %}" title="customers"><i class="bi bi-person-check"></i></a>
+                <a class="icon" href="{% url 'add_interaction' %}" title="add"><i class="bi bi-plus-circle  text-primary"></i></a> 
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="{% url 'interactions' %}?query={{ request.user.username }}&staff={{request.user.id}}">My Interactions</a></li>
+                <!-- {% if request.user.staff.branch%}
+                <li><a class="dropdown-item" href="{% url 'interactions' %}?query={{ request.user.staff.branch.branch_name }}&branch={{request.user.staff.branch.id}}">{{request.user.staff.branch.branch_name}} Interactions </a></li>
+                {% endif %} -->
+                <li><a class="dropdown-item" href="{% url 'interactions' %}?query={{ company.name }}&company={{company.id}}">All Interactions</a></li>
+                </ul>
+            </div>
+            
+
+            <div class="card-body">
+                
+                <h5 class="card-title">Interactions <span>| {% if query %} {{query}}{% else %} Mine {% endif %}</span></h5>
+
+                <table class="table table-borderless datatable">
+                    <thead>
+                        <tr>
+                        <th scope="col">Conversation Method</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Outcome Summary</th>
+                        <th scope="col">Staff</th>
+                        <th scope="col">Date Added</th>
+                        <th scope="col">Next Interaction</th>
+                        <th scope="col">Expectation</th>
+                        <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for interaction in interactions %}
+                        <tr>
+                        <td ><a href="{% url 'view_interaction' interaction.id %}" title="view interaction">{{ interaction.conversation_method }}</a></td>
+                        <td><span> <a class="text-dark" href="{% url 'customer' interaction.customer.id %}"  title="view customer">{{ interaction.customer.name }}</a></span><br><span class=" text-{{ interaction.outcome.colour }}"><i class="bi bi-signpost-fill "></i>{{ interaction.outcome.name }}</span></td>
+                        <td>{{ interaction.conversation_summary }}</td>
+                        <td>{{ interaction.staff.first_name }} </td>
+                        <td> {{ interaction.date_created |date:'d-m-y'}}<span class="badge bg-danger">{{ interaction.date_created |timesince }}</span></td>
+                        <td>{{ interaction.next_step_date |date:'d-m-y'}} {% if interaction.is_past_due %} <span class="badge bg-danger">{{ interaction.next_step_date | timesince }}</span> {% else %} <span class="badge bg-primary"> {{ interaction.next_step_date }} </span>{% endif %}<br><span class="">{{ interaction.next_step_time | time }}</span></td>                        
+                        <td>{{ interaction.what_to_expect }} </td>
+                        <td><a href="{% url 'view_interaction' interaction.id %}" class="text-success" title="view interaction"><i class="bi bi-eye-fill  x-lg"></i></a></td>
+                        </tr>                   
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
+
+            </div>
+
+            </div>
+        </div><!-- End Recent Sales -->
+
+        </div>
+    </div><!-- End Left side columns -->
+
+    </div>
+</section>
+{%  endfor %}
+</main><!-- End #main -->
+
+{% endblock  %}

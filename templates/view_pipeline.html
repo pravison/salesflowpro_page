@@ -1,0 +1,224 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}View Pipeline {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}  {% if pipeline.postponed_counter == 0 %} {% else %} This task has been postponed {{pipeline.postponed_counter}}times !!!{% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>View Pipeline</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard'%}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'pipeline'%}">Pipelines</a></li>
+          <li class="breadcrumb-item active"><a href="{% url 'add_pipeline'%}"><i class="bi bi-plus-circle"></i>Add</a></li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-10">
+                
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="view-filter">
+                            <a href="#addNotes"> <button type="submit" style="align-self: start;" class="btn btn-white " id="add-notes-btn"><i class="bi bi-bookmark-plus  text-primary" title="add notes"></i></button></a>
+                            {% if pipeline.important %}<i class="bi bi-star-fill  text-warning" title="important"></i> {% endif %}
+                            {% if pipeline.done %}<i class="bi bi-check-circle  text-success" title="completed"></i> {% endif %}
+                            <a class="icon" href="{% url 'pipeline'%}" title="pipelines"><i class="bi bi-card-list"></i></a>
+                            {% if pipeline.done %}
+                            {% else %}
+                            <a class="icon" title="re-sechedule" href="#" data-bs-toggle="dropdown"><i class="bi bi-arrow-clockwise"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                                <h6>Re-Sechedule</h6>
+                            </li>
+                            <form method="POST", action="{% url 'resechedule'  pipeline.id%}">
+                                {% csrf_token %}
+                                <div class="form-check" style="display: none;">
+                                    <input class="form-check-input" name="postponed" type="checkbox" id="gridCheck2" checked>
+                                    <label class="form-check-label" for="postponed">
+                                        postponed
+                                    </label>
+                                </div>
+                                <div class="row mb-3 ms-2">
+                                    <label for="date" class="col-sm-12 col-form-label">Date</label>
+                                    <div class="col-sm-11">
+                                      <input type="date" name="date" class="form-control"  required>
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3 ms-2">
+                                    <label for="time" class="col-sm-12 col-form-label">Time</label>
+                                    <div class="col-sm-11">
+                                      <input type="time" name='time' class="form-control">
+                                    </div>
+                                  </div>
+                                <div class="row mb-3 ms-2">
+                                    <div class="col-sm-10 justify-content-center6">
+                                        <button type="submit" style="align-self: start;" class="btn btn-primary ">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                            </ul>
+                            {% endif %}
+                            <a class="icon"  title="edit" href="#" data-bs-toggle="dropdown"><i class="bi bi-pencil-square"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                                <h6>Edit</h6>
+                            </li>
+                            <form method="POST", action="{% url 'edit'  pipeline.id%}">
+                                {% csrf_token %}
+                                <div class="form-check ms-4">
+                                    <input class="form-check-input" name="done" type="checkbox" id="done" {% if pipeline.done %} checked {% endif %}>
+                                    <label class="form-check-label" for="done">
+                                       Completed
+                                    </label>
+                                </div>
+                                <div class="form-check ms-4">
+                                    <input class="form-check-input" name="important" type="checkbox" id="important" {% if pipeline.important %} checked {% endif %}>
+                                    <label class="form-check-label" for="important">
+                                        important
+                                    </label>
+                                </div>
+                                <div class="row mb-3 ms-2">
+                                    <div class="col-sm-10 justify-content-center6">
+                                      <button type="submit" style="align-self: start;" class="btn btn-primary " id="submit-btn">Submit</button>
+                                    </div>
+                                  </div>
+                            </form>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        
+                        <h5 class="card-title"> {{ pipeline.task }}</h5>
+                        {% if pipeline.customer.name %}
+                        <div class="row mb-3">
+                        <label for="customer" class="col-sm-12 col-form-label"><strong>Customer</strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-muted small pt-1 fw-bold">{{ pipeline.customer.name}}</span> <span class="text-muted small pt-2 ps-1">{{ pipeline.customer.phone}}</span><span class="text-muted small pt-2 ps-1">{{ pipeline.customer.location}}</span>
+                        </div>
+                        </div>
+                        {% endif %}
+                        {% if pipeline.what_to_expect %}
+                        <div class="row mb-3">
+                        <label for="what_to_expect" class="col-sm-12 col-form-label"><strong>What To Expect</strong></label>
+                        <div class="col-sm-12">
+                            {{ pipeline.what_to_expect }}
+                        </div>
+                        </div>
+                        {% endif %}
+                        <div class="row mb-3">
+                        <label for="pipeline_date" class="col-sm-12 col-form-label"><strong>To Be Done</strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-danger small pt-1 fw-bold">@ {{ pipeline.pipeline_time}}</span> <span class="text-muted small pt-2 ps-1">{{ pipeline.pipeline_date}}</span>
+                        </div>
+                        </div>
+                        {% if pipeline.postponed_counter %}
+                        <div class="row mb-3">
+                        <label for="pipeline_date" class="col-sm-12 col-form-label"><strong>Postponed</strong></label>
+                        <div class="col-sm-12">
+                            {{ pipeline.postponed_counter }} times
+                        </div>
+                        </div>
+                        {% endif %}
+                        <div class="row mb-3">
+                        <label for="pipeline_date" class="col-sm-12 col-form-label"><strong>Completed</strong></label>
+                        <div class="col-sm-12">
+                            {{ pipeline.done }}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="pipeline_date" class="col-sm-12 col-form-label"><strong> Date Created</strong></label>
+                        <div class="col-sm-12">
+                            {{ pipeline.date_created }}
+                        </div>
+                        </div>
+                        <div id="note">
+                        
+                        <div class="row mb-3" >
+                        <label for="notes" class="col-sm-12 col-form-label"><strong>Notes</strong></label>
+                        {% if pipeline.notes %}
+                        <div class="col-sm-12">
+                            {{ pipeline.notes }}
+                        </div>
+                        {% endif %}
+                        </div>
+                        {% for note in notes %}
+                        <div class="row mb-3">
+                        <div class="col-sm-12">
+                            {{ note.notes }}
+                        </div>
+                        </div>
+                        {% endfor %}
+                        </div>
+                        
+                        <div class="row mb-3" id="add-notes-btn-body" style="display: block";>
+                        <div class="col-sm-10 justify-content-center6">
+                            <button type="submit" style="align-self: start;" class="btn btn-primary " id="add-notes-btn">add notes</button>
+                        </div>
+                        </div>
+                        <form method="POST", action="{% url 'add_pipeline_note'  pipeline.id%}" id="addNotes" style="display: none;">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <textarea name="add-notes" class="form-control" style="height: 100px"></textarea>
+                            </div>
+                            </div>
+                            <div class="row mb-3 ms-2">
+                            <div class="col-sm-12 justify-content-center6">
+                                <button type="submit" style="align-self: start;" class="btn btn-success ">Save</button>
+                            </div>
+                            </div>
+                        </form>
+                        
+                        <div class="row mb-3" style="right: 15px;">
+                        <div class="col-sm-10" >
+                            <a  class="btn btn-secondary" href="{% url 'pipeline' %}">close</a>
+                        </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+      
+    </section>
+
+  </main><!-- End #main -->
+
+
+  <script>
+    document.getElementById('add-notes-btn').addEventListener('click',
+    function(){
+        console.log('clicked')
+        var element1 = document.getElementById('add-notes-btn-body');
+        var element2 = document.getElementById('addNotes');
+
+        if(element1.style.display === 'block'){
+            element1.style.display = 'none'
+            element2.style.display = 'block'
+        }else{
+            element1.style.display = 'block'
+            element2.style.display = 'none'
+        }
+
+    });
+
+</script>
+
+
+  {% endblock %}

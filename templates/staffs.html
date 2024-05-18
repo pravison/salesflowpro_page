@@ -1,0 +1,97 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %}staffs {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+<div class="pagetitle">
+    <h1>Staffs</h1>
+    <nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'pipeline' %}">Pipeline</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        {% if request.user.staff.admin %}<li class="breadcrumb-item"><a href="{% url 'add_staff' %}"><i class="bi bi-plus-circle"></i>Add Staffs</a></li>{% endif %}
+    </ol>
+    </nav>
+</div><!-- End Page Title -->
+{% for company in companys %}
+<section class="section dashboard">
+    <div class="row">
+
+    <!-- Left side columns -->
+    <div class="col-lg-12">
+        <div class="row">
+
+        <!-- Recent Sales -->
+        <div class="col-12">
+            <div class="card recent-sales overflow-auto">
+
+            <div class="filter">
+                <a class="icon" href="{% url 'interactions' %}" title="interactions"><i class="bi bi-chat-dots "></i></a>
+                <a class="icon" href="{% url 'customers' %}" title="customers"><i class="bi bi-person-check  "></i></a>
+                <a class="icon" href="{% url 'leads' %}" title="leads"><i class="bi bi-people  "></i></a>
+                {% if request.user.staff.admin %}<a class="icon" href="{% url 'add_staff' %}" title="add"><i class="bi bi-plus-circle  text-primary"></i></a>{% endif %}
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="{% url 'staffs' %}?query={{ request.user.username }}&staff={{request.user.staff.id}}">Me</a></li>
+                {% if request.user.staff.branch %}
+                <li><a class="dropdown-item" href="{% url 'staffs' %}?query={{ request.user.staff.branch.branch_name }}&branch={{request.user.staff.branch.id}}">{{request.user.staff.branch.branch_name}} Staffs </a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{% url 'staffs' %}?query={{ company.name }}&company={{company.id}}">All Staffs</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title">Staffs <span>| {% if query %} {{query}}{% else %} MySelf {% endif %}</span></h5>
+
+                <table class="table table-borderless datatable">
+                <thead>
+                    <tr>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">Staff</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Branch</th>
+                    <th scope="col">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staffs %}
+                    <tr>
+                    <th scope="row">{{ staff.date_joined |date:'Y-m-d'}}</th>
+                    <td><a href="{% url 'view_staff' staff.id %}" class="text-dark">{{ staff.user.first_name  }}  {{ staff.user.last_name  }}</a></td>
+                    <td>{{ staff.role}}</td>
+                    <td>{{ staff.branch.branch_name }}</a></td>
+                    <td><a href="{% url 'view_staff' staff.id %}" class="text-success"><i class="bi bi-eye-fill  x-lg"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+
+            </div>
+
+            </div>
+        </div><!-- End Recent Sales -->
+
+        </div>
+    </div><!-- End Left side columns -->
+
+    </div>
+</section>
+{%  endfor %}
+</main><!-- End #main -->
+
+{% endblock  %}

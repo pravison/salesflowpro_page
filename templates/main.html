@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+{% for company in companys %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{% block title %} {% endblock%}- {{company.name }}</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/quill/quill.snow.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/css/select2.min.css' %}" rel="stylesheet">
+
+  <!-- Date Time -->
+  <link rel="stylesheet" href="{% static 'date-time-phone/jquery-ui.css' %}">
+  <link rel='stylesheet' href="{% static 'date-time-phone/jquery-ui-timepicker-addon.css' %}" />
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center">
+
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="{% url 'pipeline' %}" class="logo d-flex align-items-center">
+        <span class="d-none d-lg-block">{{company.name }}</span>
+      </a>
+      <i class="bi bi-list toggle-sidebar-btn"></i>
+    </div><!-- End Logo -->
+
+    <nav class="header-nav ms-auto">
+      <ul class="d-flex align-items-center">
+
+        <li class="nav-item d-block d-lg-none">
+          <a class="nav-link nav-icon search-bar-toggle " href="#">
+            <i class="bi bi-search"></i>
+          </a>
+        </li><!-- End Search Icon-->
+
+        <li class="nav-item dropdown">
+
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-bell"></i>
+            <span class="badge bg-primary badge-number">{{ todays_pipelines_count }}</span>
+          </a><!-- End Notification Icon -->
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+            <li class="dropdown-header">
+              You have only {{todays_pipelines_count }} pipeline left
+              <a href="{% url 'pipeline' %}"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% for pipeline in todays_pipelines %}
+            <li class="notification-item">
+              <i class="bi bi-exclamation-circle text-warning"></i>
+              <div>
+                <h4>{{ pipeline.task }}</h4>
+                <p>{{ pipeline.what_to_expect }}</p>
+                <p>{{ pipeline.date_created| timesince}}. ago</p>
+              </div>
+            </li>
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% endfor %}
+            <li class="dropdown-footer">
+              <a href="{% url 'pipeline' %}">Show all pipelines</a>
+            </li>
+
+          </ul><!-- End Notification Dropdown Items -->
+
+        </li><!-- End Notification Nav -->
+
+        <li class="nav-item dropdown">
+
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-chat-dots "></i>
+            <span class="badge bg-success badge-number">{{ todays_interactions }}</span>
+          </a><!-- End Messages Icon -->
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+            <li class="dropdown-header">
+              You've created {{ todays_interactions }} interactions today
+              <a href="{% url 'interactions' %}"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% for interaction in latest_interactions%}
+            <li class="message-item">
+              <a href="{% url 'view_interaction' interaction.id %}">
+                <img src="assets/img/messages-1.jpg" alt="" class="rounded-circle">
+                <div>
+                  <h4>{{ interaction.customer.name}}</h4>
+                  <p>{{ interaction.conversation_summary| truncatechars:100}}</p>
+                  <p>{{ interaction.date_created  | timesince }}. ago</p>
+                </div>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% endfor %}
+            <li class="dropdown-footer">
+              <a href="#">Show all Interactions</a>
+            </li>
+
+          </ul><!-- End Messages Dropdown Items -->
+
+        </li><!-- End Messages Nav -->
+
+        <li class="nav-item dropdown pe-3">
+
+          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-person fx-lg"></i>
+            <span class="d-none d-md-block dropdown-toggle ps-2">{{request.user.username}}</span>
+          </a><!-- End Profile Iamge Icon -->
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+            <li class="dropdown-header">
+              <h6>{{request.user.first_name}} {{request.user.last_name}}</h6>
+              <span>{{request.user.staff.role}}</span>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <!-- <li>
+              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                <i class="bi bi-person"></i>
+                <span>My Profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                <i class="bi bi-gear"></i>
+                <span>Account Settings</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>-->
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'company' %}">
+                <i class="bi bi-question-circle"></i>
+                <span>{{request.user.staff.branch.branch_name}}</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li> 
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+              </a>
+            </li>
+
+          </ul><!-- End Profile Dropdown Items -->
+        </li><!-- End Profile Nav -->
+
+      </ul>
+    </nav><!-- End Icons Navigation -->
+
+  </header><!-- End Header -->
+  <!-- ======= Sidebar ======= -->
+  <aside id="sidebar" class="sidebar">
+
+    <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item">
+        <a class="nav-link " href="{% url 'pipeline' %}">
+            <i class="bi bi-card-list"></i>
+            <span>Pipeline</span>
+        </a>
+        </li><!-- End pipeline Nav -->
+
+        <!--<li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'dashboard' %}">
+            <i class="bi bi-grid"></i>
+            <span>Dashboard</span>
+          </a>
+        </li> End Dashboard Nav -->
+
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'company' %}">
+            <i class="bi bi-bank"></i>
+            <span>Company</span>
+        </a>
+        </li><!-- End company Nav -->
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'leads' %}">
+            <i class="bi bi-people"></i>
+            <span>Leads</span>
+        </a>
+        </li><!-- End Dashboard Nav -->
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'customers' %}">
+            <i class="bi bi-person-check"></i>
+            <span>Customers</span>
+        </a>
+        </li><!-- End Dashboard Nav -->
+        
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'interactions' %}">
+          <i class="bi bi-chat-dots  text-primary"></i>
+            <span>Interactions</span>
+        </a>
+        </li><!-- End Dashboard Nav -->
+
+
+        <li class="nav-heading">Pages</li>
+
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'staffs' %}">
+            <i class="bi bi-people"></i>
+            <span>Staffs</span>
+        </a>
+        </li><!-- End Profile Page Nav -->
+
+        <!--<li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'staffs' %}">
+              <i class="bi bi-bar-chart"></i>
+              <span>Reports</span>
+          </a>
+        </li> End Profile Page Nav -->
+
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'faq' %}">
+            <i class="bi bi-question-circle"></i>
+            <span>F.A.Q</span>
+        </a>
+        </li><!-- End F.A.Q Page Nav -->
+        {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'logout' %}">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Logout</span>
+          </a>
+        </li><!-- End Logout Page Nav -->
+        {% else %}
+        <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'login' %}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Login</span>
+        </a>
+        </li><!-- End Login Page Nav -->
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'signup' %}">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Sign up</span>
+          </a>
+        </li><!-- End Login Page Nav -->
+        {% endif %}
+
+    </ul>
+
+</aside><!-- End Sidebar-->
+  
+
+  {% block content %}
+
+  {% endblock %}
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="copyright">
+      &copy; Copyright <strong><span>{{company.name }}</span></strong>. All Rights Reserved
+    </div>
+    <div class="credits">
+      <!-- All the links in the footer should remain intact. -->
+      <!-- You can delete the links only if you purchased the pro version. -->
+      <!-- Licensing information: https://bootstrapmade.com/license/ -->
+      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+      powered by Sales Flow Pro
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/apexcharts/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/chart.js/chart.umd.js' %}"></script>
+  <script src="{% static 'assets/vendor/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/quill/quill.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/simple-datatables/simple-datatables.js' %}"></script>
+  <script src="{% static 'assets/vendor/tinymce/tinymce.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+  <script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+  <script>
+    setTimeout(function(){
+      if ($('#msg').length > 0) {
+        $('#msg').remove();
+      }
+    }, 2000)
+  </script>
+
+<script src="{% static 'date-time-phone/jquery-ui.js' %}" ></script>
+<script src="{% static 'date-time-phone/jquery-ui-timepicker-addon.js' %}"></script> 
+
+<script>
+  $( function() {
+      $( "#pipeline_date" ).datetimepicker({ dateFormat: 'yy-mm-dd', maxDate: 0, controlType: 'select'}).attr("autocomplete", "off") ;
+      //$( "#pipeline_date" ).timepicker({ dateFormat: 'yy-mm-dd', maxDate: 0, controlType: 'select'}).attr("autocomplete", "off") ;
+      // $( "#ipipeline_date" ).datepicker({ dateFormat: 'yy-mm-dd' }).attr("autocomplete", "off") ;
+  });
+  </script>
+
+<script src="{% static 'date-time-phone/jquery-input-mask-phone-number.min.js' %}"></script> 
+
+<script>
+  //(xxx) xxx-xxxx format code
+  $(document).ready(function () {
+      $('#id_phone_number').usPhoneFormat({
+          format: '(xxx) xxx-xxxx',
+      });   
+  });
+  </script>
+
+</body>
+{% endfor %}
+</html>

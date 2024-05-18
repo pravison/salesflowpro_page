@@ -1,0 +1,139 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}View Interaction {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>View Interaction</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard'%}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'pipeline'%}">Pipelines</a></li>
+          <li class="breadcrumb-item active"><a href="{% url 'add_interaction' %}"><i class="bi bi-plus-circle"></i>Add</a></li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-10">
+                
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="view-filter">
+                            <a class="icon" href="{% url 'pipeline'%}" title="pipelines"><i class="bi bi-card-list"></i></a>
+                            <a class="icon" href="{% url 'interactions' %}" title="interactions"><i class="bi bi-chat-dots "></i></a>
+                            <a class="icon" href="{% url 'leads' %}" title="leads"><i class="bi bi-people  "></i></a>
+                            <a class="icon" href="{% url 'customers' %}" title="customers"><i class="bi bi-person-check  "></i></a>
+                            <a href="{% url 'add_interaction' %}"> <button type="submit" style="align-self: start;" class="btn btn-white " id="add-notes-btn"><i class="bi bi-plus-circle"></i></a></button></a>
+                            
+                        </div>
+                    </div>
+                   
+                    <div class="card-body">
+                        <h5 class="card-title">Interaction Details</h5>
+                        <!-- Bordered Table -->
+                        <table class="table table-bordered">
+                        <thead>
+                            <!-- <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            </tr> -->
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td class="col-lg-3">ID</td>
+                            <td class="col-lg-9">{{ interaction.id }}</td>
+                            </tr>
+                            <tr>
+                            <td>Date Created</td>
+                            <td>{{ interaction.date_created }}</td>
+                            </tr>
+                            <tr>
+                            <td>Customer</td>
+                            <td><a href="{% url 'customer' interaction.customer.id %}" class="text-dark"> {{ interaction.customer.name }}</a> <span>({{ interaction.customer.phone }})</span></td>
+                            </tr>
+                            <tr>
+                            <td>Staff</td>
+                            <td>{{ interaction.staff.first_name }} {{ interaction.staff.last_name }}</td>
+                            </tr>
+                            <tr>
+                            <td>Conversation Method</td>
+                            <td>{{ interaction.conversation_method }}</td>
+                            </tr>
+                            <tr>
+                            <td>Conversation Outcome</td>
+                            <td>{{ interaction.outcome }}</td>
+                            </tr>
+                            <tr>
+                            <td>Conversation Summary</td>
+                            <td>{{ interaction.conversation_summary }}</td>
+                            </tr>
+                            <tr>
+                            <td>Next Step</td>
+                            <td>{{ interaction.next_step }}</td>
+                            </tr>
+                            <tr>
+                            <tr>
+                            <td>Expectation </td>
+                            <td>{{ interaction.what_to_expect }}</td>
+                            </tr>
+                            <td>Next Step Date</td>
+                            <td>{{ interaction.next_step_date }}</td>
+                            </tr>
+                            <tr>
+                            <td>Next Step Time</td>
+                            <td>{{ interaction.next_step_time }}</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                        <!-- End Bordered Table -->
+        
+                        <!-- End Primary Color Bordered Table -->
+        
+                    </div>
+                     
+                </div>
+
+            </div>
+        </div>
+      
+    </section>
+
+  </main><!-- End #main -->
+
+
+  <script>
+    document.getElementById('add-notes-btn').addEventListener('click',
+    function(){
+        console.log('clicked')
+        var element1 = document.getElementById('add-notes-btn-body');
+        var element2 = document.getElementById('addNotes');
+
+        if(element1.style.display === 'block'){
+            element1.style.display = 'none'
+            element2.style.display = 'block'
+        }else{
+            element1.style.display = 'block'
+            element2.style.display = 'none'
+        }
+
+    });
+
+</script>
+
+
+  {% endblock %}

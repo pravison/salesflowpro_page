@@ -1,0 +1,533 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}View Customer {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }} 
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>View customer</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'pipeline'%}">Pipelines</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'leads'%}">Leads</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'customers'%}">customers</a></li>
+          <li class="breadcrumb-item active"><a href="{% url 'add_customer'%}"><i class="bi bi-plus-circle"></i>Add</a></li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="view-filter">
+                            <a class="icon" href="#addInteractions"> <button type="submit" style="align-self: start;" class="btn btn-white " id="add-interaction-btn"><i class="bi bi-chat-dots  text-primary" title="add Interaction"></i></button></a>
+                            <a class="icon" href="#addNotes"> <button type="submit" style="align-self: start;" class="btn btn-white " id="add-notes-btn"><i class="bi bi-bookmark-plus  text-primary" title="add notes"></i></button></a>
+                            <a class="icon" title="add product" href="#" data-bs-toggle="dropdown"><i class="bi bi-cart-plus"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#productBasicModal">
+                                    <i class="bi bi-plus"></i> New Product
+                                </button>
+                            </li>
+                            <form method="POST", action="{% url 'add_product_to_customer'  customer.id%}">
+                                {% csrf_token %}
+                                <div class="row mb-3 ms-2">
+                                    <label class="col-sm-11 col-form-label ms-2">Product</label>
+                                    <div class="col-sm-11 ">
+                                        <select class="form-select" name="product" aria-label="Default select example">
+                                        {% for product in products %}
+                                        <option value="{{ product.id}}">{{ product.product_name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                  </div>
+                                <div class="row mb-3 ms-2">
+                                    <div class="col-sm-10 justify-content-center6">
+                                        <button type="submit" style="align-self: start;" class="btn btn-primary ">add Product</button>
+                                    </div>
+                                </div>
+                            </form>
+                            </ul>
+                            
+                            <a class="icon" title="add label" href="#" data-bs-toggle="dropdown"><i class="bi bi-tags"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <li class="dropdown-header text-start">
+                                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#labelBasicModal">
+                                        <i class="bi bi-plus"></i> New Label
+                                    </button>
+                                </li>
+                                <form method="POST", action="{% url 'add_label_to_customer'  customer.id %}">
+                                    {% csrf_token %}
+                                    <div class="row mb-3 ms-2">
+                                        <label class="col-sm-11 col-form-label ms-2">label Customer</label>
+                                        <div class="col-sm-11 ">
+                                            <select class="form-select" name="label" aria-label="Default select example">
+                                            {% for label in labels %}
+                                            <option value="{{label.id}}">{{label.label }}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                      </div>
+                                    <div class="row mb-3 ms-2">
+                                        <div class="col-sm-10 justify-content-center6">
+                                            <button type="submit" style="align-self: start;" class="btn btn-primary ">add label</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </ul>
+                            <a class="icon"  title="edit" href="#" data-bs-toggle="dropdown"><i class="bi bi-pencil-square"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                                <h6>Edit</h6>
+                            </li>
+                            <form method="POST", action="{% url 'edit_customer'  customer.id%}">
+                                {% csrf_token %}
+                                <div class="form-check ms-4">
+                                    <input class="form-check-input" name="active" type="checkbox" id="active" {% if customer.active %} checked {% endif %}>
+                                    <label class="form-check-label" for="active">
+                                       Active
+                                    </label>
+                                </div>
+                                {% if customer.active %}
+                                <div class="form-check ms-4">
+                                    <input class="form-check-input" name="dormant" type="checkbox" id="dormant" {% if customer.dormant %} checked {% endif %}>
+                                    <label class="form-check-label" for="dormant">
+                                         Dormant
+                                    </label>
+                                </div>
+                                {% endif %}
+                                <div class="row mb-3 ms-2">
+                                    <div class="col-sm-10 justify-content-center6">
+                                      <button type="submit" style="align-self: start;" class="btn btn-primary " id="submit-btn">Submit</button>
+                                    </div>
+                                  </div>
+                            </form>
+                            </ul>
+                        </div>
+                        <!-- Basic Modal -->
+                        
+                        <div class="modal fade" id="productBasicModal" tabindex="-1">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title">Add New Product</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="row g-3 needs-validation"  method="POST" action="{% url 'add_product' customer.id %}">
+                                        {% csrf_token %}
+                                        
+                                        <div class="row mb-3">
+                                            <label for="product_name" class="col-sm-11 col-form-label">Product Name </label>
+                                            <div class="col-sm-11">
+                                              <input type="text" name="product_name" class="form-control" rquired>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label for="product_price" class="col-sm-11 col-form-label">Product Price </label>
+                                            <div class="col-sm-11">
+                                              <input type="float" name="product_price" class="form-control" >
+                                            </div>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                          <button class="btn btn-primary" type="submit">Add Poduct</button>
+                                        </div>
+                                        
+                                    </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div><!-- End Basic Modal-->
+
+                        <div class="modal fade" id="labelBasicModal" tabindex="-1">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title">Add New Label </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="row g-3 needs-validation"  method="POST" action="{% url 'add_label' customer.id %}">
+                                        {% csrf_token %}
+                                        
+                                        <div class="row mb-3">
+                                            <label for="label" class="col-sm-11 col-form-label">Label Name </label>
+                                            <div class="col-sm-11">
+                                              <input type="text" name="label" class="form-control" rquired>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3 ">
+                                            <label class="col-sm-11 col-form-label ms-2">label Colour</label>
+                                            <div class="col-sm-11 ">
+                                                <select class="form-select" name="colour" aria-label="Default select example">
+                                                    <option value="primary">blue</option>
+                                                    <option value="secondary">grey</option>
+                                                    <option value="success">green</option>
+                                                    <option value="danger">red</option>
+                                                    <option value="info"> sky blue</option>
+                                                    <option value="warning">yellow</option>
+                                                    <option value="dark">black</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label for="definition" class="col-sm-11 col-form-label">Label Definition </label>
+                                            <div class="col-sm-11">
+                                              <textarea type="text" name="definition" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                          <button class="btn btn-primary" type="submit">Add Label</button>
+                                        </div>
+                                        
+                                    </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div><!-- End Basic Modal-->
+                    </div>
+
+                    <div class="card-body">
+    
+                      <div class="pt-4 pb-2">
+                        <h5 class="card-title text-center pb-0 fs-4">{{ customer.name}}</h5>
+                        <p class=" p-filter text-center">
+                            
+                            <span class="badge bg-warning"><a  class="icon" href="tel:{{ customer.phone }}"><i class="bi bi-telephone-fill text-white" title="Call"></i></a></span>
+                            <span class="badge bg-warning"><a class="icon" href="sms:{{ customer.phone }}"><i class="bi bi-chat-fill text-white" title="Message"></i></a></span>
+                            <span class="badge bg-warning"><a class="icon" href="mailto:{{ customer.email }}"><i class="bi bi-envelope-fill text-white" title="Email"></i></a></span>
+                            <span class="badge bg-warning"><a class="icon" class="icon" href="https://wa.me/{{ customer.phone }}" title="Whatsap"><i class="bi bi-whatsapp text-white"></i></a></span>
+                        </p>
+                        
+                      </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><strong>Customer Labels</strong></h5>
+                            {% for label in customr_labels %}
+                            <span class="badge bg-{{label.colour}}">{{label.label}}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer" class="col-sm-12 col-form-label"><strong>Main Phone Number</strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-muted small pt-1 fw-bold">{{ customer.phone}}</span>
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer" class="col-sm-12 col-form-label"><strong>Alternative Phone Number</strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-muted small pt-1 fw-bold">{{ customer.phone1}}</span>
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer" class="col-sm-12 col-form-label"><strong>Email <Address></Address></strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-muted small pt-1 fw-bold">{{ customer.email}}</span>
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer" class="col-sm-12 col-form-label"><strong>Location Address <Address></Address></strong></label>
+                        <div class="col-sm-12">
+                            <span class="text-muted small pt-1 fw-bold">{{ customer.location}}</span>
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="what_to_expect" class="col-sm-12 col-form-label"><strong>Active</strong></label>
+                        <div class="col-sm-12">
+                           {% if  customer.active %} Yes {% else %} No {% endif %}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Dormant</strong></label>
+                        <div class="col-sm-12">
+                            {% if  customer.dormant %} Yes {% else %} No {% endif %}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Product</strong></label>
+                        
+                        <div class="col-sm-12">
+                            <ol>
+                            {% for product in customer_products %}
+                            <li>{{ product.product_name }}</li>
+                            {% endfor %}
+                            </ol> 
+                        </div>
+                        
+                        </div>
+                       
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Lead Type</strong></label>
+                        <div class="col-sm-12">
+                            {{ customer.lead_type }}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong> Added By</strong></label>
+                        <div class="col-sm-12">
+                            {{ customer.added_by }}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Company Branch</strong></label>
+                        <div class="col-sm-12">
+                            {{ customer.branch.branch_name }}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Date Added</strong></label>
+                        <div class="col-sm-12">
+                            {{ customer.date_added| date }}
+                        </div>
+                        </div>
+                        <div class="row mb-3">
+                        <label for="customer_date" class="col-sm-12 col-form-label"><strong>Customer Description</strong></label>
+                        <div class="col-sm-12">
+                            {{ customer.description }}
+                        </div>
+                        </div>
+                        
+                        <div class="row mb-3" id="addNotes" style="display: none;">
+
+                        <div class="col-sm-10 text-center">
+                            <h4>add notes</he>
+                        </div>
+                        
+                        <form method="POST", action="{% url 'add_customer_note'  customer.id %}"  >
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <textarea name="add-notes" class="form-control" style="height: 100px"></textarea>
+                            </div>
+                            </div>
+                            <div class="row mb-3 ms-2">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" style="align-self: start;" class="btn btn-success ">Save</button>
+                            </div>
+                            </div>
+                        </form>
+                        </div>
+
+                        <div class="row mb-3" id="addInteractions" style="display: none;">
+
+                            <div class="col-sm-10 text-center">
+                                <h4>add Interaction</he>
+                            </div>
+                           
+                            <!-- General Form Elements -->
+                            <form method="POST", action="{% url 'add_customer_interaction'  customer.id %}">
+                                {% csrf_token %}
+                                <div class="row mb-3">
+                                <label class="col-sm-12 col-form-label">Conversation Method</label>
+                                <div class="col-sm-12">
+                                    <select class="form-select" name="conversation_method" aria-label="Default select example">
+                                    <option value="call"  selected>call</option>
+                                    <option value="chat">chat</option>
+                                    <option value="face">face to face</option>
+                                    </select>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label class="col-sm-12 col-form-label">Outcome</label>
+                                <div class="col-sm-12">
+                                    <select class="form-select" name="outcome" aria-label="Default select example">
+                                    {% for outcome in outcomes %}
+                                    <option value="{{outcome.id}}">{{outcome.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label  class="col-sm-12 col-form-label">Conversation Summary</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" name="conversation_summary" style="height: 100px"></textarea>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label class="col-sm-12 col-form-label">Next Step</label>
+                                <div class="col-sm-12">
+                                    <select class="form-select" name="next_step" aria-label="Default select example">
+                                    {% for step in next_steps %}
+                                    <option value="{{ step.id }}">{{ step.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label class="col-sm-12 col-form-label">What To Expect</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" name="what_to_expect" style="height: 100px"></textarea>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label for="inputDate" class="col-sm-12 col-form-label">Next Date</label>
+                                <div class="col-sm-12">
+                                    <input type="date" name="next_step_date" class="form-control"  required >
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <label for="inputTime" class="col-sm-12 col-form-label">Next Time</label>
+                                <div class="col-sm-12">
+                                    <input type="time" name="next_step_time" class="form-control" required>
+                                </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                <div class="col-sm-12 text-center">
+                                    <button type="submit" style="align-self: start;" class="btn btn-success ">Save</button>
+                                </div>
+                                </div>
+
+                            </form><!-- End General Form Elements -->
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                       
+                        <!-- Bordered Tabs Justified -->
+                        <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
+                          <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="bi bi-chat-dots  text-primary" title="Interaction"></i> Interactions</button>
+                          </li>
+                          <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link w-100" id="profile-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-profile" type="button" role="tab" aria-controls="profile" aria-selected="false"><i class="bi bi-bookmark  text-primary" title="notes"></i> Notes</button>
+                          </li>
+                        </ul>
+                        <div class="tab-content pt-2" id="borderedTabJustifiedContent">
+                          <div class="tab-pane fade show active" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
+                            
+                            <div class="card-body">
+                            <!-- Recent Sales -->
+                                <div class="col-12">
+                                    <div class="recent-sales overflow-auto">
+
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="bi bi-plus  x-lg"></i>New</h5>
+
+                                        <table class="table table-borderless datatable">
+                                        <thead>
+                                            <tr>
+                                            <th scope="col">Conversation Method</th>
+                                            <th scope="col">Customer</th>
+                                            <th scope="col">Outcome Summary</th>
+                                            <th scope="col">Staff</th>
+                                            <th scope="col">Date Added</th>
+                                            <th scope="col">Next Interaction</th>
+                                            <th scope="col">Expectation</th>
+                                            <th scope="col">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for interaction in customer_interactions %}
+                                            <tr>
+                                            <td ><a href="{% url 'view_interaction' interaction.id %}" title="view interaction">{{ interaction.conversation_method }}</a></td>
+                                            <td><span> <a class="text-dark" href="{% url 'customer' interaction.customer.id %}"  title="view customer">{{ interaction.customer.name }}</a></span><br><span class=" text-{{ interaction.outcome.colour }}"><i class="bi bi-signpost-fill "></i>{{ interaction.outcome.name }}</span></td>
+                                            <td>{{ interaction.conversation_summary }}</td>
+                                            <td>{{ interaction.staff.first_name }} </td>
+                                            <td> {{ interaction.date_created |date:'d-m-y'}}<span class="badge bg-danger">{{ interaction.date_created |timesince }}</span></td>
+                                            <td>{{ interaction.next_step_date |date:'d-m-y'}} {% if interaction.is_past_due %} <span class="badge bg-danger">{{ interaction.next_step_date | timesince }}</span> {% else %} <span class="badge bg-primary"> {{ interaction.next_step_date }} </span>{% endif %}<br><span class="">{{ interaction.next_step_time | time }}</span></td>                        
+                                            <td>{{ interaction.what_to_expect }} </td>
+                                            <td><a href="{% url 'view_interaction' interaction.id %}" class="text-success" title="view interaction"><i class="bi bi-eye-fill  x-lg"></i></a></td>
+                                            </tr>                   
+                                            {% endfor %}
+                                        </tbody>
+                                        </table>
+
+                                    </div>
+
+                                    </div>
+                                </div><!-- End Recent Sales -->
+                            </div>
+                        </div>
+                          
+                          <!-- Default Card -->
+                        
+                        <div class=" tab-pane fade" id="bordered-justified-profile" role="tabpanel" aria-labelledby="profile-tab">
+                            {% for note in notes %}
+                            <div class="card-body">
+                            <h5 class="card-title mb-0">{{ note.notes }}<br/><span  class="small">added by {{ note.added_by.username }}</span></h5>
+                            </div>
+                            {% endfor %}
+                        </div><!-- End Default Card -->
+                        
+                        </div><!-- End Bordered Tabs Justified -->
+          
+                    </div>
+                    <hr/>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                        <span class="mb-1">
+                            <a  class="btn btn-secondary" href="{% url 'customers' %}"><i class="bi bi-arrow-left " title="important"></i> customers</a>
+                        </span>
+                        <span >
+                            <a  class="btn btn-secondary" href="{% url 'leads' %}"><i class="bi bi-arrow-left " title="important"></i> leads</a>
+                        </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+      
+    </section>
+
+  </main><!-- End #main -->
+
+
+  <script>
+    document.getElementById('add-notes-btn').addEventListener('click',
+    function(){
+        console.log('clicked')
+        var element2 = document.getElementById('addNotes');
+
+        if(element2.style.display === 'none'){
+            element2.style.display = 'block'
+        }else{
+            element2.style.display = 'none'
+        }
+
+    });
+
+  </script>
+
+<script>
+    document.getElementById('add-interaction-btn').addEventListener('click',
+    function(){
+        console.log('clicked')
+        var element1 = document.getElementById('addInteractions');
+
+        if(element1.style.display === 'none'){
+            element1.style.display = 'block'
+        }else{
+            element1.style.display = 'none'
+        }
+
+    });
+
+  </script>
+
+
+{% endblock %}
+
+ 
+

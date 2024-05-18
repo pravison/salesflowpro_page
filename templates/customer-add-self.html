@@ -1,0 +1,144 @@
+{% extends 'registration.html' %}
+{% load static %}
+{% block title %} Customer Form {% endblock %}
+
+{% block content %}
+<main>
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+            
+                <div class="d-flex justify-content-center py-4">
+                    <a href="{% url 'pipeline' %}" class="logo d-flex align-items-center w-auto">
+                      {% for company in companys %}
+                      <span class="d-none d-lg-block">{{ company.name }}</span>
+                      {% endfor %}
+                    </a>
+                </div><!-- End Logo -->
+            
+
+              <div class="card mb-3">
+
+                <div class="card-body">
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                        {{ message }} 
+                        <br>
+                        <a href="{% url 'customer_self_add'%}"> Get back to the form</a>
+                        <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
+                    </div>
+
+
+                    {% endfor %}
+                {% else %}
+
+                  <div class="pt-4 pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Fill Above Form</h5>
+                    {% for company in companys %}
+                    <p class="text-center small">{{ company.pitch }}</p>
+                      {% endfor %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <P>fields with <span class="text-danger">*</span> are required the rest are optional </P> 
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  </div>
+
+                  <form class="row g-3 needs-validation"  method="POST" action="{% url 'customer_self_add' %}">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        Your Form Has Errors
+                        {% for field in form %}
+                          {% if field.errors %}
+                            {{ field.errors }}
+                          {% endif %}
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endif %}
+                    <div class="row mb-3">
+                    <label for="name" class="col-sm-12 col-form-label">Customer Name<span class="text-danger">*</span></label>
+                    <div class="col-sm-12">
+                        {{ form.name }}
+                    </div>
+                    </div>
+    
+                    <div class="row mb-3">
+                        <label for="phone" class="col-sm-12 col-form-label">Phone Number<span class="text-danger">*</span> </label>
+                        <div class="col-sm-12">
+                        {{ form.phone }}
+                        </div>
+                        </div>
+    
+                    <div class="row mb-3">
+                    <label for="phone1" class="col-sm-12 col-form-label">Alternative Phone Number</label>
+                    <div class="col-sm-12">
+                        {{ form.phone1 }}
+                    </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                    <label for="email" class="col-sm-12 col-form-label">Email</label>
+                    <div class="col-sm-12">
+                        {{ form.email }}
+                    </div>
+                    </div>
+    
+                    <div class="row mb-3">
+                    <label for="location" class="col-sm-12 col-form-label">Customer Location<span class="text-danger">*</span></label>
+                    <div class="col-sm-12">
+                        {{ form.location }}
+                    </div>
+                    </div>
+    
+                    <div class="row mb-3">
+                    <label for="lead_type" class="col-sm-12 col-form-label">Lead Type<span class="text-danger">*</span></label>
+                    <div class="col-sm-12">
+                        {{ form.lead_type }}
+                    </div>
+                    </div>
+
+                    <div class="row mb-3">
+                    <label for="product" class="col-sm-12 col-form-label">Product</label>
+                    <div class="col-sm-12">
+                        {{ form.product }}
+                    </div>
+
+                    <div class="row mb-3">
+                    <label for="description" class="col-sm-12 col-form-label">Describe Your Need<span class="text-danger">*</span></label>
+                    <div class="col-sm-12">
+                        {{ form.description }}
+                    </div>
+                    </div>
+                    <!-- <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
+                        <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
+                        <div class="invalid-feedback">You must agree before submitting.</div>
+                      </div>
+                    </div> -->
+                    <div class="col-12">
+                      <button class="btn btn-primary w-100" type="submit">Submit</button>
+                    </div>
+                    
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+            
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+</main><!-- End #main -->
+  {% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}Add Interaction {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>Add Interactions</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'pipeline'%}">Pipelines</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'leads'%}">Leads</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'leads'%}">Customers</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'interactions'%}">Interactions</a></li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Add Interactions</h5>
+
+              {% if form.errors or form.non_field_errors %}
+                  <div class="mb-3 p-6 bg-red-100 rounded-xl">
+                      {% for field in form %}
+                          {{ field.errors }}
+                      {% endfor %}
+
+                      {{ form.non_field_errors }}
+                  </div>
+              {% endif %}
+
+              <!-- General Form Elements -->
+              <form method="POST", action="{% url 'add_interaction'%}">
+                {% csrf_token %}
+
+                <div class="row mb-3">
+                <label for="customerInteraction" class="col-sm-12 col-form-label">Customer</label>
+                <div class="col-sm-12">
+                    {{ form.customer }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="conversationMethodInteraction" class="col-sm-12 col-form-label">Conversation Method</label>
+                <div class="col-sm-12">
+                    {{ form.conversation_method }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="outcomeInteraction" class="col-sm-12 col-form-label">Conversation Outcome</label>
+                <div class="col-sm-12">
+                    {{ form.outcome }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="conversationSummaryInteraction" class="col-sm-12 col-form-label">Conversation Summary</label>
+                <div class="col-sm-12">
+                    {{ form.conversation_summary }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="nextStepInteraction" class="col-sm-12 col-form-label">Next Step</label>
+                <div class="col-sm-12">
+                    {{ form.next_step }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="whatToExpectInteraction" class="col-sm-12 col-form-label">What To Expect</label>
+                <div class="col-sm-12">
+                    {{ form.what_to_expect }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="nextStepDateInteraction" class="col-sm-12 col-form-label">Next Step Date</label>
+                <div class="col-sm-12">
+                    {{ form.next_step_date }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="nextStepTimeInteraction" class="col-sm-12 col-form-label">Next Step Time</label>
+                <div class="col-sm-12">
+                    {{ form.next_step_time }}
+                </div>
+                </div>
+            
+                <div class="row mb-3">
+                  <div class="col-sm-10 justify-content-center6">
+                    <button type="submit" class="btn btn-primary ">Submit Form</button>
+                  </div>
+                </div>
+
+              </form><!-- End General Form Elements -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <script>
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+  </script>
+  <script>
+    $(document).ready(function(){
+      $('.autocomplete').autocomplete(
+        {
+          source:'/customer-autocomplete/',
+        }
+      );
+    });
+  </script>
+
+  {% endblock %}

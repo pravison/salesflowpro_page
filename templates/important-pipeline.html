@@ -1,0 +1,292 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}Important Pipelines{% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+<div class="pagetitle">
+    <h1>Your Important Pipelines</h1>
+    <nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard'%}">Dashboard</a></li>
+        <li class="breadcrumb-item active"><a href="{% url 'pipeline'%}">Pipeline</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'add_pipeline'%}"><i class="bi bi-plus-circle"></i>Add Pipeline</a></li>
+    </ol>
+    </nav>
+    
+</div><!-- End Page Title -->
+
+<section class="section dashboard">
+    <div class="row">
+
+        <!-- Right side columns -->
+        <div class="col-lg-4">
+    
+            <!-- pipeline stats  -->
+            <div class="card">
+                <!-- <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                    </li>
+        
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                    </ul>
+                </div> -->
+        
+                <div class="card-body pb-0">
+                    <h5 class="card-title">Your Pipeline <span>| Today</span></h5>
+        
+                    <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+        
+                    <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        echarts.init(document.querySelector("#trafficChart")).setOption({
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        legend: {
+                            top: '5%',
+                            left: 'center'
+                        },
+                        series: [{
+                            name: 'Access From',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            label: {
+                            show: false,
+                            position: 'center'
+                            },
+                            emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                            },
+                            labelLine: {
+                            show: false
+                            },
+                            data: [
+                            {
+                                value: {{tasks_postponed}},
+                                name: 'postponed'
+                            },
+                            {
+                                value : {{tasks_completed}},
+                                name: 'completed'
+                            },
+                            {
+                                value: {{tasks_not_completed}},
+                                name: 'Not Completed'
+                            }
+                            ]
+                        }]
+                        });
+                    });
+                    </script>
+        
+                </div>
+            </div><!-- End pipeline stats -->
+    
+            
+    
+    
+        </div><!-- End Right side columns -->
+
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+            <div class="row">
+                <i id="changeElement"  class="bi bi-list fontWeight-670" ></i>
+                <!-- Pipeline Card 1 -->
+                <div id="element1" class="col-xxl-4 col-xl-12" style="display: block;" >
+
+                    <div class="card info-card customers-card">
+
+                    <div class="filter">
+                        <a href="{% url 'pipeline'%}" title="pipelines"><i class="bi bi-card-list"></i></a>
+                        <a href="{% url 'add_pipeline'%}" title="add"><i class="bi bi-plus"></i></a> 
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <li class="dropdown-header text-start">
+                            <h6>Filter</h6>
+                        </li>
+
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y-m-d' %}">Today</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y-m' %}">This Month</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y' %}">This Year</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body overflow">
+                        <h5 class="card-title">Important  Pipelines <span>| {% if query %} {{query}} {% else %} Today {% endif %}</span></h5>
+                        {% for pipeline in pipelines %}
+                        <div class="d-flex align-items-center mb-3 border">
+                        <div class="card-icon  rounded-circle d-flex align-items-center justify-content-center">
+                            <form id="myFormCompleted" method="POST" action="{% url 'edit_pipeline' pipeline.id %}">
+                                {% csrf_token %}
+                                <input class="form-check-input rounded-circle d-flex align-items-center justify-content-center" title="click if completed" type="checkbox" name="completedCheckbox" id="completedCheckbox" onchange="document.getElementById('submitButton').click()">
+                                <input type="submit" id="submitButton" style="display: none;">
+                            </form>
+                        </div>
+                        <div class="ps-3">
+                            <h6 style="cursor: pointer;"><a href="{% url 'view_pipeline' pipeline.id %}">{{ pipeline.task}}</a></h6>
+                            <span class="text-danger small pt-1 fw-bold">@ {{ pipeline.pipeline_time}}</span> <span class="text-muted small pt-2 ps-1">{{ pipeline.pipeline_date}}</span>
+                            <div>
+                                {% if pipeline.customer %}<p><span class="text-muted small pt-1 fw-bold"><a class="text-dark" href="{% url 'customer' pipeline.customer.id %}">{{ pipeline.customer.name}}</a></span> <span class="text-muted small pt-2 ps-1">{{ pipeline.customer.phone}}</span><span class="text-muted small pt-2 ps-1">{{ pipeline.customer.location}}</span></p>{% endif %}
+                                <p>{{ pipeline.what_to_expect| safe| truncatechars:100}}</p>
+                            </div>
+                            
+
+                        </div>
+                        </div>
+                        
+                        {% endfor %}
+                    </div>
+                    
+                    </div>
+
+                </div><!-- End  Pipeline Card 1 -->
+
+            
+                <!-- Pipeline Card 2 -->
+                <div  id="element2" class="col-12" style="display: none;">
+                    <div class="card recent-sales overflow-auto">
+
+                    <div class="filter">
+                        <a href="{% url 'pipeline'%}" title="pipelines"><i class="bi bi-card-list"></i></a>
+                        <a href="{% url 'add_pipeline'%}" title="add"><i class="bi bi-plus"></i></a>
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <li class="dropdown-header text-start">
+                            <h6>Filter</h6>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y-m-d' %}">Today</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y-m' %}">This Month</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?query={% now 'Y' %}">This Year</a></li>
+                    </ul>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title">Important Pipelines <span>| {% if query %} {{query}}{% endif %}</span></h5>
+
+                        <table class="table table-borderless datatable">
+                        <thead>
+                            <tr>
+                            <th scope="col">Done</th>
+                            <th scope="col">Task</th>
+                            <th scope="col">Date & Time</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">What To Expect</th>
+                            <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pipeline in pipelines %}
+                            <tr>
+                            <td style="cursor: pointer;"><a href="{% url 'view_pipeline' pipeline.id %}">{{ pipeline.task}}</a></td>
+                            <td><span class="text-danger small pt-1 fw-bold">@ {{ pipeline.pipeline_time}}</span> <span class="text-muted small pt-2 ps-1">{{ pipeline.pipeline_date}}</span></td>
+                            <td>{% if pipeline.customer %}<a href="{% url 'customer' pipeline.customer.id %}" class="text-primary">{{ pipeline.customer.name}}</a></td>{% endif %}
+                            <td>{{ pipeline.what_to_expect| safe| truncatechars:100}}</td>
+                            <td><a href="{% url 'view_pipeline' pipeline.id %}"><span class="badge bg-success"><i class="bi bi-eye-fill  x-lg"></i></span></a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+
+                    </div>
+
+                    </div>
+                </div><!--  Pipeline Card 2 -->
+
+                
+
+                <!-- Complted Pipelines -->
+                <div class="col-xxl-4 col-xl-12">
+                    <div class="card">
+                    <div class="filter">
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <li class="dropdown-header text-start">
+                            <h6>Filter</h6>
+                        </li>
+            
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?search={% now 'Y-m-d' %}">Today</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?search={% now 'Y-m' %}">This Month</a></li>
+                        <li><a class="dropdown-item" href="{% url 'important_pipeline' %}?search={% now 'Y' %}">This Year</a></li>
+                        </ul>
+                    </div>
+            
+                    <div class="card-body">
+                        <h5 class="card-title">Completed Pipelines <span>| {% if search %} {{search}}{% endif %}</span></h5>
+            
+                        <div class="activity">
+                        {% for pipeline in completed %}
+                        <div class="activity-item d-flex">
+                            <div class="activite-label">{{ pipeline.date_updated| timesince}}</div>
+                            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                            <div class="activity-content">
+                                <p><span class="small pt-1 fw-bold"><a href="{% url 'view_pipeline' pipeline.id %}" class="fw-bold text-dark">{{ pipeline.task}}</a> |</span> <span class="text-muted small pt-2 ps-1"> was created on {{ pipeline.date_created }}</span </p>
+                                {% if pipeline.customer %}<p><span class="small pt-1 fw-bold"><a class="text-dark" href="{% url 'customer' pipeline.customer.id %}">{{ pipeline.customer.name}}</a></span> <span class="text-muted small pt-2 ps-1">{{ pipeline.customer.phone}}</span><span class="text-muted small pt-2 ps-1">{{ pipeline.customer.location}}</span></p>{% endif %}
+                            </div>
+                        </div><!-- End activity item-->
+                        {% endfor %}
+                        </div>
+            
+                    </div>
+                    </div>
+                </div><!-- End  -->
+            </div>
+        </div><!-- End Left side columns -->
+
+    </div>
+</section>
+
+</main><!-- End #main -->
+
+<script>
+    document.getElementById('changeElement').addEventListener('click',
+    function(){
+        console.log('clicked')
+        var element1 = document.getElementById('element1');
+        var element2 = document.getElementById('element2');
+
+        if(element1.style.display === 'block'){
+            element1.style.display = 'none'
+            element2.style.display = 'block'
+        }else{
+            element1.style.display = 'block'
+            element2.style.display = 'none'
+        }
+
+    });
+
+</script>
+<script>
+    document.getElementById('completedCheckbox').addEventListener('click',
+    function(){
+        console.log('clicked')
+        if(this.checked){
+            print('checked')
+            document.getElementById('myFormCompleted').submit()
+        }
+    }
+    );
+</script>
+
+{% endblock  %}

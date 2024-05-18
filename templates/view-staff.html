@@ -1,0 +1,262 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %}Company Infor {% endblock %}
+{% block content %}
+
+<main id="main" class="main">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+  {% endif %}
+  <div class="pagetitle">
+    <h1>Staff</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'pipeline' %}">Pipeline</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'staffs' %}">Staffs</a></li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section profile">
+    <div class="row">
+     
+      <div class="col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            {% if request.user == staff.user  %}
+              <div class="view-filter">
+                <a class="icon " href="{% url 'add_target' %}"> <button style="align-self: start;" class="btn btn-white text-danger"><i class="bi bi-bullseye " title="add Targets"></i>add Targets</button></a>
+                <a class="icon " href="{% url 'add_report' %}"> <button style="align-self: start;" class="btn btn-white text-success"><i class="bi bi-bar-chart " title="add Targets"></i>add Report</button></a>
+              </div>
+
+            {% endif %}
+          </div>
+          <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+
+            <!-- <img src="{{ company.imageURL }}" alt="Profile" class="rounded-circle"> -->
+            <h2>{{ staff.user.first_name }}  {{ staff.user.last_name }}</h2>
+            <div class="col-12"><h2 class="col-6">Username :</h2><h3  class="col-6">@{{ staff.user.username }}</h3></div>
+            <div class="col-12"><h2 class="col-4">Role :</h2><h3  class="col-8">{{ staff.role }}</h3></div>
+            <div class="col-12"><h2 class="col-5">Branch : </h2><h3  class="col-7">{{ staff.branch.branch_name }}</h3></div>
+            <div class="col-12 "><h2 class="col-7">Date Joined :</h2><h3  class="col-5">{{ staff.date_joined | date }}</h3></div>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-8">
+          <div class="card">
+          <div class="card-body pt-3">
+            <!-- Bordered Tabs -->
+            <ul class="nav nav-tabs nav-tabs-bordered">
+
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Target</button>
+              </li>
+
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-company">Reports</button>
+              </li>
+
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Pipeline</button>
+              </li>
+
+            </ul>
+            <div class="tab-content pt-2">
+            
+              <div class="tab-pane fade profile-company" id="profile-company">
+
+                <h5 class="card-title">Todays Report</h5>
+                {% for report in reports %}
+                <div class="col-lg-12">
+                  <div class="info-box card">
+                    <h3  class="mt-1"><span> Target : {{ report.target.target }}  {{ report.target.KPI.KPI_name }}</span> <br> Achieved : {{ report.achieved }} {{ report.target.KPI.KPI_name }}</h3>
+                    {% if  report.target.notes %}<p> <strong>Target Notes :</strong><br>{{report.target.notes}}</p> {% endif %}
+                    {% if  report.notes %}<p><strong> Report Note :</strong><br>{{report.notes}}</p>{% endif %}
+                    <p><strong> target initiated on {{report.target.date_created  | date}}</strong> </p>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="tab-pane fade show active profile-overview" id="profile-overview">
+
+                <h5 class="card-title">Todays Target</h5>
+                {% for target in targets %}
+                <div class="col-lg-12">
+                  <div class="info-box card">
+                    <h3><span> {{ target.target }} ;</span> <br>{{ target.KPI.KPI_name }}</h3>
+                    <p> {{target.date_created | date}}<br>{{target.notes}}</p>
+                  </div>
+                </div>
+               {% endfor %}
+              </div>
+
+              <!-- <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+
+               
+                <form>
+                  <div class="row mb-3">
+                    <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
+                    <div class="col-md-8 col-lg-9">
+                      <img src="assets/img/profile-img.jpg" alt="Profile">
+                      <div class="pt-2">
+                        <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></a>
+                        <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
+                    <div class="col-md-8 col-lg-9">
+                      <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="country" type="text" class="form-control" id="Country" value="USA">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="phone" type="text" class="form-control" id="Phone" value="(436) 486-3538 x29071">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="email" type="email" class="form-control" id="Email" value="k.anderson@example.com">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="twitter" type="text" class="form-control" id="Twitter" value="https://twitter.com/#">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="facebook" type="text" class="form-control" id="Facebook" value="https://facebook.com/#">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="instagram" type="text" class="form-control" id="Instagram" value="https://instagram.com/#">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin Profile</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="linkedin" type="text" class="form-control" id="Linkedin" value="https://linkedin.com/#">
+                    </div>
+                  </div>
+
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>  End Profile Edit Form 
+
+              </div> -->
+
+              <div class="tab-pane fade pt-3" id="profile-settings">
+                <div class="card-body">
+                  <!-- Recent Sales -->
+                      <div class="col-12">
+                          <div class="recent-sales overflow-auto">
+
+                            <div class="card-body">
+
+                              <h5 class="card-title"> ({{ today_staff_pipelines_count }}) Pipelines </span></h5>
+
+                              <table class="table table-borderless datatable">
+                              <thead>
+                                  <tr>
+                                  <th scope="col">Task</th>
+                                  <th scope="col">Date & Time</th>
+                                  <th scope="col">Customer</th>
+                                  <th scope="col">What To Expect</th>
+                                  <th scope="col">Action</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for pipeline in  today_staff_pipelines %}
+                                  <tr>
+                                  <td style="cursor: pointer;"><a href="{% url 'view_pipeline' pipeline.id %}">{{ pipeline.task}}</a></td>
+                                  <td><span class="text-danger small pt-1 fw-bold">@ {{ pipeline.pipeline_time}}</span> <span class="text-muted small pt-2 ps-1">{{ pipeline.pipeline_date}}</span></td>
+                                  <td>{% if pipeline.customer %}<a href="{% url 'customer' pipeline.customer.id %}" class="text-primary">{{ pipeline.customer.name}}</a></td>{% endif %}
+                                  <td>{{ pipeline.what_to_expect| safe| truncatechars:100}}</td>
+                                  <td><a href="{% url 'view_pipeline' pipeline.id %}"><span><i class="bi bi-eye-fill text-success  x-lg"></i></span></a></td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                              </table>
+
+                            </div>
+
+                          </div>
+                      </div><!-- End Recent Sales -->
+                  </div>
+                
+              </div>
+
+
+            </div><!-- End Bordered Tabs -->
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main><!-- End #main -->
+{% endblock %}

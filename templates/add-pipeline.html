@@ -1,0 +1,137 @@
+{% extends 'main.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}Add Pipeline {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>Add Pipeline</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard'%}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'pipeline'%}">Pipelines</a></li>
+          <li class="breadcrumb-item active"><i class="bi bi-plus-circle"></i>Add</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Add Pipeline</h5>
+
+              {% if form.errors or form.non_field_errors %}
+                  <div class="mb-3 p-6 bg-red-100 rounded-xl">
+                      {% for field in form %}
+                          {{ field.errors }}
+                      {% endfor %}
+
+                      {{ form.non_field_errors }}
+                  </div>
+              {% endif %}
+
+              <!-- General Form Elements -->
+              <form method="POST", action="{% url 'add_pipeline'%}">
+                {% csrf_token %}
+
+                <div class="row mb-3">
+                <label for="task" class="col-sm-12 col-form-label">Task</label>
+                <div class="col-sm-12">
+                    {{ form.task }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="customer" class="col-sm-12 col-form-label">Important</label>
+                  <div class="col-sm-12">
+                    {{ form.important }}
+                  </div>
+                  </div>
+
+                <div class="row mb-3">
+                <label for="customer" class="col-sm-11 col-form-label">Choose Customer</label>
+                <div class="col-sm-11">
+                    {{ form.customer }}
+                </div>
+                <div class="col-sm-1 mt-1">
+                  <i class="bi bi-plus-circle"></i>
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="what_to_expect" class="col-sm-12 col-form-label">What To Expect</label>
+                <div class="col-sm-12">
+                    {{ form.what_to_expect }}
+                </div>
+                </div>
+                
+                <div class="row mb-3">
+                <label for="notes" class="col-sm-12 col-form-label">Notes</label>
+                <div class="col-sm-12">
+                    {{ form.notes }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="pipeline_date" class="col-sm-12 col-form-label">Date To Be Done</label>
+                <div class="col-sm-12">
+                    {{ form.pipeline_date }}
+                </div>
+                </div>
+
+                <div class="row mb-3">
+                <label for="pipeline_date" class="col-sm-12 col-form-label">Time To Be Done</label>
+                <div class="col-sm-12">
+                    {{ form.pipeline_time }}
+                </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-sm-10 justify-content-center6">
+                    <button type="submit" class="btn btn-primary ">Submit Form</button>
+                  </div>
+                </div>
+
+              </form><!-- End General Form Elements -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var searchableList = document.querySelector('.searchable-customer-list');
+      var customers = [
+        {% for customer in form.customer.field.querset %}
+        "{{ customer }}"
+        {% endfor %}
+      ];
+      // searchableList.forEach(function (dropdown) {
+      //   new choices(dropdown, {
+      //     searchEnabled: true,
+      //     searchPlaceholderValue: 'search for customer',
+      //   });
+      // });
+    });
+  </script>
+
+  {% endblock %}

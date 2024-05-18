@@ -1,0 +1,121 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %}Customers {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+<div class="pagetitle">
+    <h1>Customers</h1>
+    <nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'pipeline' %}">Pipeline</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'leads' %}">Leads</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'add_customer' %}?query=customer"><i class="bi bi-plus-circle"></i>Add Customers</a></li>
+    </ol>
+    </nav>
+</div><!-- End Page Title -->
+{% for company in companys %}
+<section class="section dashboard">
+    <div class="row">
+
+    <!-- Left side columns -->
+    <div class="col-lg-8">
+        <div class="row">
+        <!-- Recent Sales -->
+        <div class="col-12">
+            <div class="card recent-sales overflow-auto">
+
+            <div class="filter">
+                <a class="icon" href="{% url 'interactions' %}" title="interactions"><i class="bi bi-chat-dots "></i></a>
+                <a class="icon" href="{% url 'leads' %}" title="leads"><i class="bi bi-people  "></i></a>
+                <a class="icon" href="{% url 'add_customer' %}?query=customer" title="add"><i class="bi bi-plus-circle  text-primary"></i></a> 
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="{% url 'customers' %}?query={{ request.user.username }}&staff={{request.user.id}}">My Customers</a></li>
+                {% if request.user.staff.branch%}
+                <li><a class="dropdown-item" href="{% url 'customers' %}?query={{ request.user.staff.branch.branch_name }}&branch={{request.user.staff.branch.id}}">{{request.user.staff.branch.branch_name}} Customers</a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{% url 'customers' %}?query={{ company.name }}&company={{company.id}}">All Customers</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title">Customers <span>| {% if query %} {{query}}{% else %} Mine {% endif %}</span></h5>
+
+                <table class="table table-borderless datatable">
+                <thead>
+                    <tr>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Product</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                    <th scope="row">{{ customer.date_added |date:'Y-m-d' }}</th>
+                    <td><a href="{% url 'customer' customer.id %}" class="text-primary">{{ customer.name }}</a></td>
+                    <td><a href="{% url 'customer' customer.id %}">{{ customer.phone }}</a></td>
+                    <td>{% if customer.email %}{{ customer.email}} {% endif %}</a></td>
+                    <td>{{ customer.product.product_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+
+            </div>
+
+            </div>
+        </div><!-- End Recent Sales -->
+
+        </div>
+    </div><!-- End Left side columns -->
+
+    <!-- Right side columns -->
+    <div class="col-lg-4">
+
+        <!-- Recent Activity -->
+        <div class="card">
+        
+        <div class="card-body">
+            <h5 class="card-title">Recent Interactions </span></h5>
+
+            <div class="activity">
+            {% for interaction in interactions %}
+            <div class="activity-item d-flex">
+                <div class="activite-label">{{ interaction.date_created | timesince }}</div>
+                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                <div class="activity-content">
+                 had a   <a href="{% url 'view_interaction' interaction.id %}" title="view interaction" class="fw-bold text-dark"> {{ interaction.conversation_method}} interaction</a> with <a href="{% url 'customer' interaction.customer.id %}" title="view customer" class="fw-bold"> {{ interaction.customer.name}} , phone number {{ interaction.customer.phone}}; </a><a href="{% url 'view_interaction' interaction.id %}" title="view interaction" class="fw-bold text-dark"> {{ interaction.conversation_summary | safe| truncatechars:100}}</a>  
+                </div>
+            </div><!-- End activity item-->
+            {% endfor %}
+
+            </div>
+
+        </div>
+        </div><!-- End Recent Activity -->
+    </div><!-- End Right side columns -->
+
+    </div>
+</section>
+{% endfor %}
+</main><!-- End #main -->
+
+{% endblock  %}
