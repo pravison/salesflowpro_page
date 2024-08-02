@@ -354,8 +354,8 @@ def addCustomerInteraction(request, id):
         next_step_time = request.POST['next_step_time']
         customer = get_object_or_404(Customer, id=id)
         staff = request.user
-        next_step = get_object_or_404(ProbableNextStep, id=outcome_id)
-        outcome = get_object_or_404(ProbableConversationOutcome, id=next_step_id)
+        next_step = get_object_or_404(ProbableNextStep, id=next_step_id)
+        outcome = get_object_or_404(ProbableConversationOutcome, id=outcome_id)
 
         interaction = Interaction(customer=customer,  staff=staff, conversation_method=conversation_method, outcome=outcome, conversation_summary=conversation_summary, next_step=next_step, what_to_expect=what_to_expect, next_step_date=next_step_date, next_step_time=next_step_time)
         interaction.save()

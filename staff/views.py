@@ -83,7 +83,8 @@ def ViewStaff(request, id ):
 
     targets = Target.objects.filter( created_by=staff.user, timeline="Today", date_created__date=today ) 
     reports = Report.objects.filter( created_by=staff.user, date_created__date=today ) 
-    today_staff_pipelines=Pipeline.objects.filter(created_by=user, pipeline_date=today)
+
+    today_staff_pipelines=Pipeline.objects.filter(created_by=staff.user, pipeline_date=today)
     today_staff_pipelines_count =  today_staff_pipelines.count()
 
     context = {
